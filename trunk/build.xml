@@ -1,0 +1,89 @@
+<project name="custom-tasks" default="dist">
+
+  <!-- set global properties for this build -->
+    <property name="dev.root" value="${projects.root}/java/tools"/>
+    <property name="src" value="${dev.root}/src"/>
+    <property name="build" value="${dev.root}/build"/>
+    <property name="dist" value="${dev.root}/dist"/>
+    <property name="deploy" value="build/utilities/custom"/>
+
+  <target name="init">
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+	<target name="compile.java" depends="init" description="compile the source" >
+		<echo message="Compiling custom ant tasks"/>
+		<javac debug="true" 
+		    verbose="false"
+            srcdir="${src}" 
+            destdir="${build}"
+	     	fork="true" 
+	     	deprecation="false">
+            <classpath>
+			    <fileset dir="${ant.root}/lib">
+                    <include name="ant.jar" />
+                </fileset>
+			</classpath>
+		</javac>
+    </target>
+
+  <target name="compile.native" depends="init,headers,copy.headers" description="compile the native source" >
+    <echo message="Executing os specific compilation: ${os.name}" />
+    <mkdir dir="${dist}"/>
+    
+    <exec dir="${dev.root}" os="Windows 2000, Windows XP" executable="cmd">
+        <env key="Path" path="${dev.root};${dev.root}\native;${dev.root}\native\lib;${native.compiler.dir};${env.Path};"/>
+        <arg line="/c make-win32.bat"/>
+        <!--
+        <arg line="/c VCVARS32.bat | make-win32.bat"/>
+        <arg line="/c set"/>
+        -->
+    </exec>
+
+    <exec dir="${dev.root}" os="mac" executable="sh">
+        <env key="Path" path="${dev.root};${dev.root}\native;${dev.root}\native\lib;${native.compiler.dir};${env.Path};"/>
+        <arg line="make-mac.sh"/>
+    </exec>
+
+    <exec dir="${dev.root}" os="Linux" executable="sh">
+        <env key="Path" path="${dev.root};${dev.root}\native;${dev.root}\native\lib;${native.compiler.dir};${env.Path};"/>
+        <arg line="make-linux.sh"/>
+    </exec>
+
+  </target>
+
+  <target name="headers" depends="compile" description="generate JNI header file" >
+    <javah classpath="${build}" outputFile="${dev.root}/native/include/PathTask.h">
+    	<classpath>
+	        <pathelement location="${build}/"/>
+	        <pathelement location="${ant.root}/lib/ant.jar"/>    	
+    	</classpath>
+    	<class name="org.gregoire.tools.ant.PathTask" />
+    </javah>
+  </target>
+
+  <target name="copy.headers">
+    <mkdir dir="${dev.root}/native/include"/>
+    <copy file="${jdk.root}/include/jni.h" todir="${dev.root}/native/include"/>
+    <!-- copy os-specific jni .h files -->
+    <copy file="${jdk.root}/include/win32/jni_md.h" todir="${dev.root}/native/include"/>
+  </target>
+
+  <target name="dist" depends="compile,compile.native" description="generate the distribution" >
+    <copy file="${src}/custom-tasks.properties" todir="${build}"/>
+    <jar jarfile="${dist}/custom-tasks.jar" basedir="${build}" manifest="${dev.root}/MANIFEST.MF"/>
+  </target>
+
+  <target name="deploy" depends="dist" description="deploy the distribution" >
+    <copy file="${dist}/custom-tasks.jar" todir="${deploy}"/>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}" failonerror="false"/>
+    <delete dir="${dist}" failonerror="false"/>
+  </target>
+  
+</project>

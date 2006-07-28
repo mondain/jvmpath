@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<antlib>
+    <!-- ant1.6+ antlib declaration for the classes
+    use with the declaration xmlns:streamray="antlib:org.gregoire" to
+    trigger ant's autoload of this file, provided the relevant jars
+    are in the antlib directory, or a dir stated with -lib on the command line"
+    -->
+    <typedef name="updateclasspath" classname="org.gregoire.tools.ant.UpdateClasspath"/>
+    <typedef name="loadnativelibrary" classname="org.gregoire.tools.ant.LoadNativeLibrary"/>
+    <typedef name="updatejvmpath" classname="org.gregoire.tools.ant.PathTask"/>
+</antlib>
