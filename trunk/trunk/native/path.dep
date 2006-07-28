@@ -1,0 +1,8 @@
+# Microsoft Developer Studio Generated Dependency File, included by path.mak
+
+.\src\PathTask.cpp : \
+	".\include\jni.h"\
+	".\include\jni_md.h"\
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	".\src\PathTask.h"\
+	
